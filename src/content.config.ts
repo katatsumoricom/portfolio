@@ -2,11 +2,8 @@ import { defineCollection, z } from "astro:content";
 import { createClient } from "microcms-js-sdk";
 
 const client = createClient({
- /* ==========================================
-    ★ import.meta.env でダメなら process.env も見に行くように修正
-    ========================================== */
- serviceDomain: import.meta.env.MICROCMS_SERVICE_DOMAIN || process.env.MICROCMS_SERVICE_DOMAIN || "",
- apiKey: import.meta.env.MICROCMS_API_KEY || process.env.MICROCMS_API_KEY || "",
+ serviceDomain: import.meta.env.MICROCMS_SERVICE_DOMAIN,
+ apiKey: import.meta.env.MICROCMS_API_KEY,
 });
 
 // microCMSのコンテンツローダー
