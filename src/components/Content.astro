@@ -1,0 +1,157 @@
+---
+import { getCollection } from "astro:content";
+
+const allPosts = await getCollection("portfolio");
+
+allPosts.sort((a, b) => {
+  const numA = a.data.sortNumber ?? 0;
+  const numB = b.data.sortNumber ?? 0;
+  return numB - numA;
+});
+
+const uniqueCategories = [
+  ...new Set(
+    allPosts
+      .flatMap((post) => {
+        const cat = post.data.categories;
+        if (Array.isArray(cat)) return cat;
+        if (typeof cat === "string") return cat;
+        return [];
+      })
+      .filter(Boolean),
+  ),
+];
+---
+
+<main class="mx-auto px-4">
+  <h2 class="text-4xl my-24 font-bold">WORKS</h2>
+
+  {/* ==========================================
+       カテゴリータブ
+       ========================================== */}
+  <div class="flex gap-x-4 mb-8">
+    <button
+      class="tab-btn rounded px-3 py-1 text-base font-medium border border-main text-main bg-transparent transition-colors duration-300"
+      data-category="all"
+    >
+      ALL
+    </button>
+    {
+      uniqueCategories.map((category) => (
+        <button
+          class="tab-btn rounded px-3 py-1 text-base font-medium border border-main bg-main text-base transition-colors duration-300"
+          data-category={category}
+        >
+          {category}
+        </button>
+      ))
+    }
+  </div>
+
+  {/* ==========================================
+       実績リスト（Tailwindのアニメーションクラスを削除）
+       ========================================== */}
+  <div class="space-y-0">
+    {
+      allPosts.map((post) => {
+        const cat = post.data.categories;
+        const categoryString = Array.isArray(cat)
+          ? cat.join(",")
+          : typeof cat === "string"
+            ? cat
+            : "";
+
+        return (
+          <div
+            class="portfolio-item relative py-12 grid sm:grid-cols-12 gap-4 sm:gap-8 before:absolute before:top-0 before:left-0 before:w-full before:h-px before:bg-main"
+            data-item-category={categoryString}
+          >
+            <h3 class="sm:col-span-3">{post.data.title}</h3>
+            <div class="sm:col-span-4">
+              {post.data.links?.url && (
+                <a
+                  href={post.data.links.url} target="_blank"
+                  class="block w-fit rounded px-2 py-0.5 text-base bg-main border border-main hover:bg-base hover:text-main transition-colors duration-300 mb-4"
+                >
+                  {post.data.links.urlText}
+                </a>
+              )}
+              <div class="text-gray-600" set:html={post.data.text} />
+            </div>
+
+            <img
+              src={post.data.thumbnail?.url}
+              alt={post.data.title}
+              class="sm:col-span-5 w-full rounded max-h-96 object-contain"
+            />
+          </div>
+        );
+      })
+    }
+  </div>
+</main>
+
+{/* ==========================================
+     GSAP 制御スクリプト
+     ========================================== */}
+<script>
+  import { gsap } from "gsap";
+
+  const tabButtons = document.querySelectorAll(".tab-btn");
+  const portfolioItems = document.querySelectorAll<HTMLElement>(".portfolio-item");
+
+  tabButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const selectedCategory = button.getAttribute("data-category");
+
+      // --- 1. ボタンのアクティブ状態の切り替え（HTMLの初期定義に準拠） ---
+      tabButtons.forEach((btn) => {
+        btn.classList.remove("bg-transparent", "text-main");
+        btn.classList.add("bg-main", "text-base");
+      });
+      button.classList.remove("bg-main", "text-base");
+      button.classList.add("bg-transparent", "text-main");
+
+      // --- 2. GSAPによるアイテムの出し分け・フェードイン（その場でフェード） ---
+      portfolioItems.forEach((item) => {
+        const itemCategories = item.getAttribute("data-item-category")?.split(",") || [];
+        const isMatch = selectedCategory === "all" || itemCategories.includes(selectedCategory);
+
+        if (isMatch) {
+          // 他のアニメーションと衝突しないよう、この要素の現在進行中のアニメーションを停止
+          gsap.killTweensOf(item);
+
+          // 非表示（hidden）状態だった場合は、一瞬でopacity: 0にしてからhiddenを解除
+          if (item.classList.contains("hidden")) {
+            item.classList.remove("hidden");
+            gsap.set(item, { opacity: 0 });
+          }
+
+          // その場でフェードイン
+          gsap.to(item, {
+            opacity: 1,
+            duration: 0.4,
+            ease: "power2.out",
+            pointerEvents: "auto", // クリック等のイベントを有効化
+          });
+
+        } else {
+          // 他のアニメーションと衝突しないよう停止
+          gsap.killTweensOf(item);
+
+          // その場でフェードアウト
+          gsap.to(item, {
+            opacity: 0,
+            duration: 0.3,
+            ease: "power2.in",
+            pointerEvents: "none", // フェードアウト中・完了後はリンク等を触れないようにする
+            onComplete: () => {
+              // アニメーションが完全に終わったら完全に非表示（レイアウトを詰める）
+              item.classList.add("hidden");
+            },
+          });
+        }
+      });
+    });
+  });
+</script>

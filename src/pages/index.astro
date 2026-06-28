@@ -1,11 +1,26 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import Layout from "../layouts/Layout.astro";
+import Header from "../components/ui/Header.astro";
+import Content from "../components/Content.astro";
+import Footer from "../components/ui/Footer.astro";
 ---
 
 <Layout>
-	<Welcome />
+  <div class="p-8 mx-auto">
+    <Header />
+    <Content />
+    <section class="mb-16">
+      <h2 class="font-bold mb-4">あざらしら</h2>
+      <p class="mb-8">
+        湘南在住のWebデザイナー・グラフィックデザイナー。<br
+        />作品や創作活動の世界観を活かしたデザインを作るのが大好きです。
+      </p>
+      <a
+        class="rounded px-2 py-0.5 text-base bg-main border border-main hover:bg-base hover:text-main"
+        href="https://tayori.com/form/ae8895aa5e43108927cbf8ee95926f3479736427/"
+        >お問い合わせフォーム</a
+      >
+    </section>
+    <Footer />
+  </div>
 </Layout>
