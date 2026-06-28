@@ -1,12 +1,14 @@
 import { defineCollection, z } from "astro:content";
 import { createClient } from "microcms-js-sdk";
 
+/* ==========================================
+   ★ 追加：Astro公式の安全なルートから環境変数を読み込む
+   ========================================== */
+import { MICROCMS_SERVICE_DOMAIN, MICROCMS_API_KEY } from "astro:env/server";
+
 const client = createClient({
- /* ==========================================
-    ★ import.meta.env でダメなら process.env も見に行くように修正
-    ========================================== */
- serviceDomain: import.meta.env.MICROCMS_SERVICE_DOMAIN || process.env.MICROCMS_SERVICE_DOMAIN || "",
- apiKey: import.meta.env.MICROCMS_API_KEY || process.env.MICROCMS_API_KEY || "",
+  serviceDomain: MICROCMS_SERVICE_DOMAIN,
+  apiKey: MICROCMS_API_KEY,
 });
 
 // microCMSのコンテンツローダー

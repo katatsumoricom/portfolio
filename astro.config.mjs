@@ -9,3 +9,14 @@ export default defineConfig({
     plugins: [tailwindcss()]
   }
 });
+
+/* ==========================================
+     ★ ここから追加：環境変数のスキーマ定義
+     ========================================== */
+  env: {
+    schema: {
+      MICROCMS_SERVICE_DOMAIN: envField.string({ context: 'server', access: 'secret' }),
+      MICROCMS_API_KEY: envField.string({ context: 'server', access: 'secret' }),
+    },
+  },
+});
